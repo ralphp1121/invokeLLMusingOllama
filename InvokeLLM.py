@@ -1,4 +1,4 @@
-from langchain_community.llms import OllamaLLM
+from langchain_ollama import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 def query_ollama(prompt, model="llama3.1"):
@@ -32,7 +32,7 @@ def query_ollama(prompt, model="llama3.1"):
 
 def main():
     # Example prompt - you can modify this
-    prompt = "Explain what is quantum computing in simple terms."
+    prompt = "What is the tagalog word of the english word mother. Also include the other variations of the translated word mother"
     
     # You can change the model to any model you have pulled in Ollama
     model = "llama3.1"
