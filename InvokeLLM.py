@@ -32,7 +32,7 @@ def query_ollama(prompt, model="llama3.1"):
 
 def main():
     # Example prompt - you can modify this
-    prompt = "Explain what is quantum computing in simple terms like I'm 5 years old."
+    prompt = "Explain what is quantum computing in simple terms."
     
     # You can change the model to any model you have pulled in Ollama
     model = "llama3.1"
