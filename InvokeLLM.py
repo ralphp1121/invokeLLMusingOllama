@@ -1,8 +1,9 @@
+import argparse
 from langchain_ollama import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-def query_ollama(prompt, model="llama3.1"):
-    """
+def query_ollama(prompt, model):
+    """p
     Send a prompt to local Ollama instance using LangChain and get the response.
     
     Args:
@@ -31,11 +32,14 @@ def query_ollama(prompt, model="llama3.1"):
         return f"Error communicating with Ollama: {str(e)}"
 
 def main():
-    # Example prompt - you can modify this
-    prompt = "What is the tagalog word of the english word mother. Also include the other variations of the translated word mother"
+    parser = argparse.ArgumentParser(description="Send a prompt to local Ollama instance using LangChain and get the response.")
+    parser.add_argument("prompt", type=str, help="The prompt to send to the model")
+    parser.add_argument("--model", type=str, default="llama3.1", help="The model to use (default: llama3.1)")
     
-    # You can change the model to any model you have pulled in Ollama
-    model = "llama3.1"
+    args = parser.parse_args()
+    
+    prompt = args.prompt
+    model = args.model
     
     print(f"\nSending prompt to {model}: {prompt}\n")
     print("\nResponse:")
