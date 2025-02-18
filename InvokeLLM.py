@@ -2,8 +2,8 @@ import argparse
 from langchain_ollama import OllamaLLM
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-def query_ollama(prompt, model="llama3.1"):
-    """
+def query_ollama(prompt, model):
+    """p
     Send a prompt to local Ollama instance using LangChain and get the response.
     
     Args:
