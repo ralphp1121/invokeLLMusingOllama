@@ -1,97 +1,154 @@
-# Using Python to Interact with Local Ollama LLM
+# Ollama LLM Python Integration
 
-This guide demonstrates how to use Python to interact with a locally installed Ollama LLM instance on a MacBook. The implementation uses the `langchain-ollama` package to facilitate communication with the Ollama service.
+This repository contains a Python application that interacts with a locally running Ollama LLM instance. The implementation leverages LangChain to facilitate communication with Ollama and provides a straightforward command-line interface for generating LLM responses.
+
+## Overview
+
+The application allows you to:
+- Send prompts to any LLM model available in your Ollama installation
+- Receive real-time streaming responses
+- Configure which model to use via command-line arguments
 
 ## Prerequisites
 
-Before running the code, ensure you have:
+- Python 3.x
+- Ollama installed and running
+- At least one LLM model downloaded in Ollama (e.g., llama3.1, llama2)
 
-1. Python 3.x installed on your MacBook
-2. Ollama installed and running locally
-3. At least one LLM model downloaded via Ollama (e.g., llama2)
-4. A Python virtual environment set up
+## Installation
 
-## Setup Instructions
+### Direct Installation
 
-### Create and Activate Virtual Environment
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ralphp1121/invokeLLMusingOllama.git
+   cd invokeLLMusingOllama
+   ```
+
+2. Create a virtual environment:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. Install the required packages:
+   ```bash
+   pip install langchain langchain-ollama
+   ```
+
+### Docker Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ralphp1121/invokeLLMusingOllama.git
+   cd invokeLLMusingOllama
+   ```
+
+2. Build the Docker image:
+   ```bash
+   docker build -t ollama-llm-exec .
+   ```
+
+3. Run the Docker container:
+   ```bash
+   docker run -d --name ollama-container ollama-llm-exec
+   ```
+
+   The container automatically:
+   - Starts the Ollama service
+   - Downloads default models (llama3.1 and llama2)
+   - Remains running, waiting for commands
+
+## Usage
+
+### Command-Line Arguments
+
+The application accepts the following command-line arguments:
+
+| Argument | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `prompt` | The text prompt to send to the LLM | Yes | N/A |
+| `--model` | The Ollama model to use | No | llama3.1 |
+
+### Local Usage
+
+If you've installed the application directly on your machine:
 
 ```bash
-# Create a new directory for your project
-mkdir ollama_project
-cd ollama_project
-
-# Create a virtual environment
-python3 -m venv venv
-
-# Activate the virtual environment
-source venv/bin/activate
+python InvokeLLM.py "Your prompt here" --model llama3.1
 ```
 
-### Install Required Packages
+Examples:
+```bash
+# Use default model (llama3.1)
+python InvokeLLM.py "Explain how photosynthesis works"
+
+# Specify a different model
+python InvokeLLM.py "Write a short poem about the moon" --model llama2
+```
+
+### Docker Usage
+
+If you're using the Docker installation:
 
 ```bash
-pip install langchain langchain-ollama
+docker exec ollama-container python3 /app/InvokeLLM.py "Your prompt here" --model llama3.1
 ```
 
-## Code Implementation
+Examples:
+```bash
+# Use default model (llama3.1)
+docker exec ollama-container python3 /app/InvokeLLM.py "What is quantum computing?"
 
-The implementation consists of two main parts:
-
-### 1. Imports and Dependencies
-
-```python
-from langchain_ollama import OllamaLLM
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+# Specify a different model
+docker exec ollama-container python3 /app/InvokeLLM.py "Write a haiku about spring" --model llama2
 ```
 
-Key components:
-- `OllamaLLM`: Main class for interacting with Ollama
-- `StreamingStdOutCallbackHandler`: Enables real-time streaming of LLM responses
+## Working with Docker Container
 
-### 2. Main Function Implementation
-
-```python
-def query_ollama(prompt, model="llama2"):
-    try:
-        # Initialize Ollama with streaming callback
-        llm = OllamaLLM(
-            model=model,
-            callbacks=[StreamingStdOutCallbackHandler()],
-        )
-        
-        # Generate response using invoke
-        response = llm.invoke(prompt)
-        return response
-        
-    except Exception as e:
-        return f"Error communicating with Ollama: {str(e)}"
+### Check Container Status
+```bash
+docker logs ollama-container
 ```
 
-Key features:
-- **Default Model**: Uses "llama2" as the default model
-- **Streaming Output**: Implements real-time response streaming
-- **Error Handling**: Includes basic error handling for API communication
-- **Invoke Method**: Uses the modern `invoke()` method instead of deprecated call syntax
-
-## Usage Example
-
-```python
-def main():
-    prompt = "Explain what is quantum computing in simple terms."
-    model = "llama2"
-    
-    print(f"\nSending prompt to {model}: {prompt}\n")
-    print("\nResponse:")
-    response = query_ollama(prompt, model)
-    print("\nComplete response stored in variable:", response)
-
-if __name__ == "__main__":
-    main()
+### Pull Additional Models
+```bash
+docker exec ollama-container ollama pull mistral
 ```
 
-## Optional Configuration
+### List Available Models
+```bash
+docker exec ollama-container ollama list
+```
 
-The `OllamaLLM` class supports various configuration parameters:
+### Stop the Container
+```bash
+docker stop ollama-container
+```
+
+### Restart the Container
+```bash
+docker start ollama-container
+```
+
+## Code Structure
+
+The Python code consists of two main functions:
+
+1. `query_ollama(prompt, model)`:
+   - Initializes the OllamaLLM instance
+   - Configures streaming callbacks
+   - Handles errors during the API call
+   - Returns the LLM's response
+
+2. `main()`:
+   - Parses command-line arguments
+   - Calls the `query_ollama` function
+   - Displays the response
+
+## Customization
+
+You can customize the LLM parameters by modifying the initialization options:
 
 ```python
 llm = OllamaLLM(
@@ -103,30 +160,24 @@ llm = OllamaLLM(
 )
 ```
 
-## Common Issues and Solutions
+## Troubleshooting
 
-1. **Import Error**: If you see `ImportError: cannot import name 'OllamaLLM'`, ensure you have installed `langchain-ollama` package.
+1. **Ollama Service Not Running**:
+   - Ensure Ollama is installed and running with `ollama serve`
 
-2. **Connection Error**: If you can't connect to Ollama, verify:
-   - Ollama service is running (`ollama serve`)
-   - The desired model is downloaded (`ollama pull model_name`)
-   - No firewall is blocking the connection
+2. **Model Not Found**:
+   - Download the model first with `ollama pull <model_name>`
 
-3. **Virtual Environment**: Always ensure your virtual environment is activated before running the code:
-   ```bash
-   source venv/bin/activate
-   ```
+3. **Import Errors**:
+   - Verify you've installed the required packages with `pip install langchain langchain-ollama`
 
-## Best Practices
+4. **Docker Network Issues**:
+   - If using Docker, ensure you have proper network connectivity
 
-1. Always use a virtual environment to manage dependencies
-2. Include proper error handling in production code
-3. Use streaming callbacks for better user experience with long responses
-4. Keep the Ollama service running while making API calls
-5. Monitor system resources when running large language models locally
+## License
 
-## Additional Resources
+[Include your license information here]
 
-- [Ollama Documentation](https://ollama.ai/docs)
-- [LangChain Documentation](https://python.langchain.com/docs/get_started/introduction)
-- [LangChain-Ollama Package](https://python.langchain.com/docs/integrations/llms/ollama)
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
